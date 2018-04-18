@@ -2,8 +2,10 @@
 % Authors: Dariusz Dybka, Pawe³ Drapiewski
 
 %% Main file - start point for the algorithm
+close all, clear all;
 
-% Read the images
+% read images for processing
 read_images
 
-% TODO process them
+image_2 = get_image_by_id(2);
+%images{1 ,2}

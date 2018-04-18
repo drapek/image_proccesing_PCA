@@ -14,6 +14,8 @@ for k=1:length(images_folder)
     image = im2double(imread([dir_name, file_name]));
     % resize to 200x200
     image = imresize(image, [200, 200]);
+    % change on gray scale
+    image = rgb2gray(image);
     % save the images to repository array with the names
     images{k, 1} = file_name;
     images{k, 2} = image;
