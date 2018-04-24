@@ -7,9 +7,9 @@ This program needs folder _Data_ (in project root) with your own face images. (I
 
 ## API reference
 
-* To read images simply call ```read_images``` in your matlab main file
+* To read images simply call ```read_images``` in your matlab main file, it will load test images into test_images and training images into training_images array.
 
 * getting image by their position in images array:
-    ```get_image_by_id(<image_position>)```
+    ```get_image_by_id(<image_position>, <cell array with images>)```
     or as alternative use cell array syntax: 
-    ```images{1, 2}``` 
+    ```<cell array with images>{1, 2}``` 
