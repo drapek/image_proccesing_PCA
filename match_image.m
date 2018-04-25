@@ -12,7 +12,7 @@ function matched_image = match_image(test_image, training_images)
         training_images{i, 3} = image_as_vector; % save it for debuging
     end
     
-    % calculate mean values of pixel in all images
+    % calculate mean values of pixel in for all images
     mean_values = [];
     for i = 1 : size(training_images{1, 3})
         sum = 0;
@@ -30,25 +30,16 @@ function matched_image = match_image(test_image, training_images)
         A = [A substracted_image];
     end
     
-    % calculate eigenface
+    % calculate eigenfaces
     L = A' * A;
     [V, D] = eig(L); % V - eigenvector; D - eigenvalue
+    eigen_faces = A * V;
     
-    % TODO - probably not necassary
-    % Kaiser's rule - if corresponing eigen value of eigen vector is
-    % greater than 1 than eigenvector is choosen to create eigen face
-    L_eigen_vector = [];
-    for k = 1 : size(V, 2)
-        L_eigen_vector = [L_eigen_vector V(:, k)];
-    end
-        
-    eigen_faces = A * L_eigen_vector;
-    %get projection of image on eigenspace
-    projectimg = [];
+    %count projection 
+    projected_images = [];
     for i = 1 : size(eigen_faces, 2)
-        temp = eigen_faces' * A(:,i);
-        training_images{i, 7} = temp; % TODO rebuild it
-        projectimg = [projectimg temp];
+        projected_image = eigen_faces' * A(:,i);
+        projected_images = [projected_images projected_image];
     end
     
     % Now read test image
@@ -57,14 +48,14 @@ function matched_image = match_image(test_image, training_images)
     test_img_normalized = double(test_image_as_vect) - mean_values;
     test_img_projection = eigen_faces' * test_img_normalized;
     
-    % calculate the euqidlian distance
-    euclide_dist = [];
+    % calculate the euqidlian distance for each image.
+    euklidean_distances = [];
     for i=1 : size(eigen_faces, 2)
-        temp = (norm(test_img_projection-projectimg(:,i)))^2;
-        euclide_dist = [euclide_dist temp];
+        distance = (norm(test_img_projection-projected_images(:,i)))^2;
+        euklidean_distances = [euklidean_distances distance];
     end
-    [euclide_dist_min recognized_index] = min(euclide_dist);
-    
-    matched_image = training_images{recognized_index, 2};
-    a = 1;
+    % Image with the smallest equidlian distance will be the best match
+    [best_euklidan_value index_value] = min(euklidean_distances);
+    fprintf('Euklidan minimum value: %s\n', best_euklidan_value)
+    matched_image = training_images{index_value, 2};
 end
