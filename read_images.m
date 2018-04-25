@@ -5,16 +5,16 @@
 
 % read traininig images
 training_dir = 'Data/only_faces/training/';
-training_images = load_images_to_array(training_dir);
+training_images = load_images_into_array(training_dir);
 
 % read test images
 test_dir = 'Data/only_faces/test/';
-test_images = load_images_to_array(test_dir);
+test_images = load_images_into_array(test_dir);
 
 % clear the the unnecessary variables
 clear training_dir_name file_name image images_folder k
 
-function loaded_images = load_images_to_array(dir_path)
+function loaded_images = load_images_into_array(dir_path)
     loaded_images = [];
     images_folder = dir([dir_path, '*.jpg']);
     % For each image in 'dir_name' folder
