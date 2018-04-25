@@ -5,47 +5,66 @@
 function matched_image = match_image(test_image, training_images)
     training_images_count = length(training_images);
     
+    % change each image (array) on one-row vector
     for i = 1 : training_images_count
-        % save the result vector as third column
-        image = training_images{i, 2};
-        
-        % Step 1 - change each image (array) on one-row vector
-        [hig, len] = size(image);
-        image_as_vector = reshape(image', hig * len, 1);
+        [hig, len] = size(training_images{i, 2});
+        image_as_vector = reshape(training_images{i, 2}', hig * len, 1);
         training_images{i, 3} = image_as_vector; % save it for debuging
-        
-        % Step 2 - calculate necessary variables to count eigen values
-        % avaerage face image of all training images
-        image_mean_value_of_pixels = mean(training_images{i, 3});
-        training_images{i, 4} = image_mean_value_of_pixels;
-        % count A mattrix (substract all pixels from the mean)
-        A = double(image_as_vector) - image_mean_value_of_pixels;
-        
-        % Step 3 - calculate eigenface
-        L = A' * A;
-        [V, D] = eig(L); % V - eigenvector; D - eigenvalue
-        
-        % Kaiser's rule - if corresponing eigen value of eigen vector is
-        % greater than 1 than eigenvector is choosen to create eigen face
-        for k = 1 : size(V)
-            if (D(k) > 1)
-                L_eigen_vector = V(k);
-            end
-        end
-        
-        eigen_face = A * L_eigen_vector;
-        training_images{i, 5} = eigen_face;
-        
-        % Step 4 - get projection of image on facespace
-        projecetion_image = eigen_face' * A;
-        training_images{i, 6} = projecetion_image;
     end
     
-    % TODO Read the test image
+    % calculate mean values of pixel in all images
+    mean_values = [];
+    for i = 1 : size(training_images{1, 3})
+        sum = 0;
+        for j = 1 : training_images_count
+            image = training_images{j, 3};
+            sum = sum + image(i);
+        end
+        mean_values = [mean_values; sum/training_images_count];
+    end
     
+    % count A mattrix (substract all pixels from the mean)
+    A = [];
+    for i = 1 : training_images_count
+        substracted_image = double(training_images{i, 3}) - mean_values;
+        A = [A substracted_image];
+    end
     
-   
+    % calculate eigenface
+    L = A' * A;
+    [V, D] = eig(L); % V - eigenvector; D - eigenvalue
     
-    % for now mock the matched_image
-    matched_image = training_images{1, 2};
+    % TODO - probably not necassary
+    % Kaiser's rule - if corresponing eigen value of eigen vector is
+    % greater than 1 than eigenvector is choosen to create eigen face
+    L_eigen_vector = [];
+    for k = 1 : size(V, 2)
+        L_eigen_vector = [L_eigen_vector V(:, k)];
+    end
+        
+    eigen_faces = A * L_eigen_vector;
+    %get projection of image on eigenspace
+    projectimg = [];
+    for i = 1 : size(eigen_faces, 2)
+        temp = eigen_faces' * A(:,i);
+        training_images{i, 7} = temp; % TODO rebuild it
+        projectimg = [projectimg temp];
+    end
+    
+    % Now read test image
+    [hig, len] = size(test_image);
+    test_image_as_vect = reshape(test_image', hig * len, 1);
+    test_img_normalized = double(test_image_as_vect) - mean_values;
+    test_img_projection = eigen_faces' * test_img_normalized;
+    
+    % calculate the euqidlian distance
+    euclide_dist = [];
+    for i=1 : size(eigen_faces, 2)
+        temp = (norm(test_img_projection-projectimg(:,i)))^2;
+        euclide_dist = [euclide_dist temp];
+    end
+    [euclide_dist_min recognized_index] = min(euclide_dist);
+    
+    matched_image = training_images{recognized_index, 2};
+    a = 1;
 end

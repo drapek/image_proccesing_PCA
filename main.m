@@ -10,7 +10,10 @@ close all, clear all;
 read_images
 
 % make loop for each test image
-test_image = get_image_by_id(1, 'test_images');
-result_image = find_match_image(test_image, training_images);
-% Show the results
-figure(1), imshow([test_image, result_image]), title('Test image / Matched image');
+for i = 1 : size(test_images)
+    test_image = get_image_by_id(i, 'test_images');
+    result_image = match_image(test_image, training_images);
+    % Show the results
+    figure(i), imshow([test_image, result_image]), title('Test image / Matched image');
+end
+
